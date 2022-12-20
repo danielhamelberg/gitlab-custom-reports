@@ -24,19 +24,27 @@ class GitLabAPI:
             'created_before': end_date
         }
 
-        # Make GET request to the API endpoint
-        response = requests.get(endpoint, params=params, headers=self.headers)
+         # Use pagination to get all pipelines in the project
+        pipeline_ids = []
+        while True:
+            # Make a GET request to the API endpoint with the query parameters
+            response = requests.get(endpoint, params=params, headers=self.headers)
+            for pipeline in response.json():
+                # Append each pipeline ID to the list of pipeline IDs
+                pipeline_ids.append(pipeline['id'])
 
-        # Check if the response is successful
-        if response.status_code == 200:
-            # Extract the pipeline IDs from the response
-            pipeline_ids = [pipeline['id'] for pipeline in response.json()]
-            return pipeline_ids
-        else:
-            # Handle unexpected response
-            raise Exception("Unexpected response from API")
+            # If there is no link to the next page, stop pagination
+            if 'next' not in response.links:
+                break
+
+            # Go to the next page
+            endpoint = response.links['next']['url']
+
+        return pipeline_ids
 
     def get_pipeline_variables(self, project_id, pipeline_id):
+        import requests
+
         # API endpoint for getting pipeline variables
         endpoint = f"{self.base_url}/api/v4/projects/{project_id}/pipelines/{pipeline_id}/variables"
 
@@ -44,8 +52,7 @@ class GitLabAPI:
         response = requests.get(endpoint, headers=self.headers)
 
         # Extract the variables from the response
-        variables = {variable['key']: variable['value']
-                     for variable in response.json()}
+        variables = {variable['key']: variable['value'] for variable in response.json()}
 
         return variables
 
