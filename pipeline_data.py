@@ -74,20 +74,31 @@ class PipelineData:
         df = pd.DataFrame.from_dict(self.pipeline_variables, orient='index')
         return df
 
-
 token = os.getenv("GITLAB_API_TOKEN")
 project_id = os.getenv("GITLAB_PROJECT_ID")
-since = os.getenv("START_DATE")
-until = os.getenv("END_DATE")
 
 # Instantiate a GitLabAPI object
 gitlab_api = GitLabAPI(base_url='https://gitlab.com', private_token=token)
 
-# Instantiate a PipelineData object
-pipeline_data = PipelineData(gitlab_api=gitlab_api, project_id=project_id, start_date=since, end_date=until)
+# Function to instantiate a PipelineData object for Q4 of both 2021 and 2022
+def create_pipeline_data(project_id, since, until):
+    # Instantiate a PipelineData object
+    pipeline_data = PipelineData(gitlab_api, project_id, since, until)
 
-# Get the Pandas Dataframe
-df = pipeline_data.to_dataframe()
+    # Get the pipeline data
+    pipeline_data.get_data()
+
+    # Return the PipelineData object
+    return pipeline_data
+
+# Get pipeline data for Q4 in 2021
+q4_2021_pipeline_data = create_pipeline_data(project_id, '2021-10-01', '2021-12-31')
+
+# Get pipeline data for Q4 in 2022
+q4_2022_pipeline_data = create_pipeline_data(project_id, '2022-10-01', '2022-12-31')
+
+# Create a single dataframe of the pipeline data
+df = q4_2021_pipeline_data.dataframe.append(q4_2022_pipeline_data.dataframe)
 
 # Plot correlation matrix
 corr = df.corr()
@@ -321,7 +332,7 @@ ax.set_ylabel("Number of Pipelines")
 ax.legend()
 
 # Save the graph
-plt.savefig('pipelines_by_date_unit.png')[insert]
+plt.savefig('pipelines_by_date_unit.png')
 
 # Save the dataframe to a csv file
 df.to_csv('pipeline_data.csv')
