@@ -1,0 +1,21 @@
+stages:
+  - generate
+  - build
+  - deploy
+
+generate:
+  stage: generate
+  script:
+    - python report_generator.py
+
+build:
+  stage: build
+  script:
+    - python build_static_site.py
+
+deploy:
+  stage: deploy
+  script:
+    - gitlab-pages deploy --url tba
+  only:
+    - master
