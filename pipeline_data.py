@@ -3,12 +3,10 @@ import requests
 import pandas as pd
 logging
 from matplotlib import pyplot as plt
+
 """
 To use these classes, you would first need to instantiate a GitLabAPI object with your GitLab base URL and private token. Then, you can use this object to create a PipelineData object, which will use the GitLabAPI object to retrieve the pipeline IDs and variables, store them in a map, and then convert them to a Pandas Dataframe.
 """
-# Improve the above code with the following two requirements:
-# 1. The GitLabAPI class should include an error handling mechanism to handle unexpected responses from the API.
-# 2.. The PipelineData class should include a way to check for duplicates in the pipeline_ids list.
 
 class GitLabAPI:
     def __init__(self, base_url, private_token):
@@ -104,6 +102,10 @@ ax.set_xticks(range(len(labels)))
 ax.set_yticks(range(len(labels)))
 ax.set_xticklabels(labels, rotation=45, ha='right')
 ax.set_yticklabels(labels)
+
+plt.title('Correlation Matrix')
+plt.xlabel('Variables')
+plt.ylabel('Variables')
 
 plt.show()
 
